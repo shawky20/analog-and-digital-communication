@@ -1,0 +1,81 @@
+// questuin(1)
+t= -2 : 0.1 : 2
+y_time_domain = 2*tripuls(t1,4); 
+plot(t,y_time_domain ,'b'); 
+%Signal Plot (TIME)     
+title("time domain");
+xlabel("t(sec)");
+ylabel("x(t)");
+//  questuin(2) is a hand analysis 
+// questuin(3)
+N = 1000;
+fs = 10;
+f = (-N/2:N/2-1)*fs/N ;
+y_analytical= 4*realpow(sinc(2*f),2);
+plot(f,y_analytical,'b'); % Plot of analytical FT
+title "FT Analyt | FT octave [Freq]"); xlabel("f(hz)"); ylabel("X(f)");
+hold on;
+
+// questuin(4)
+
+power = abs(fftshift(fft(y_time_domain.*y_time_domain,N))/10);
+y = 0.05*max(power); %value of power at (5%);
+plot(f,power,[-5,5],[y,y]);   % power plot (Frequency) + ConstY
+title('power plot (Frequency) | constY');
+xlabel('Frequency (Hz)');
+ylabel('Power');
+ 
+// questuin(5)
+LPF_BW = 1; %BandWidth of the filter
+LPF = ones(1,length(f));
+LPF(abs(f) >= LPF_BW) = 0;
+%if freq increases above the value of the filter(whose range from -1  to 1)--> output =0;
+new_sig_f = y_no_filter .* LPF;
+t2 = linspace(-2,2,42);
+%inverse FT
+y = downsample(new_sig_f,24); %decreasing the sampling rate to do IFT
+time_LPF = ifft(y)*fs;
+figure(5);
+plot(t2, -abs(time_LPF)+2);
+
+// questuin(6)
+LPF_BW = 0.3; % defining the BW of the filter
+LPF = ones(1,length(f));
+LPF(abs(f) >= LPF_BW) = 0; 
+%if freq increases above the value of the filter(whose range from -1  to 1)--> output =0;
+new_sig_f = y_no_filter .* LPF;
+ %Multiplying the Filter by the signal in Frequency domain results in filtering the signal
+t2 = linspace(-2,2,42);
+%inverse FT
+y = downsample(new_sig_f,24); 
+time_LPF = ifft(y)*fs;
+figure(5);
+plot(t2, -abs(time_LPF)+2); 
+% Plot of filtered FT (in time domain)
+t6 = linspace(-2,2,41)
+hold on 
+plot(t6,y_time_domain);
+
+// questuin(7)
+// part A
+t2 = -4 : 0.001 : 4
+filter_in_time = ones(1,length(t1))
+filter_in_time(abs(t1)>=1)=0
+
+time_conv = conv(filter_in_time,y_time_domain)/1000;
+plot(t2,time_conv,'r');
+title("Convolution-Q7 A");
+// part B
+pkg load signal
+t3 = -2.9 : 0.00145 : 2.9
+filter_in_time = ones(1,length(t1))
+filter_in_time(abs(t1)>=1)=0
+f1 = fftshift(fft(filter_in_time))
+f2 = fftshift(fft(y_time_domain))
+frequency_mult = f1.*f2 ;
+yz = abs(ifftshift(ifft(frequency_mult)/1000)) ;
+yz = yz*3/2-1.5
+plot(t3,yz,'b');
+title("Multiplication - Q7 B");
+axis ([-4, 4, 0, 3]);
+
