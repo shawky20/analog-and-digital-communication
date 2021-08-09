@@ -1,0 +1,64 @@
+% num of bits
+N = 32
+a=randi ([0 1] , 1 , N);
+%the bit rate is 1 bit per second
+%mapping code
+  for i=1:N
+	  b(i)=a(i);
+  end
+% BIPOLAR PULSE
+s = 1;
+t = 0:0.002:length(a);
+
+for j=1:length(t)
+                 if t(j)<= s
+           y(j) = b(s);
+     else
+          y(j) = b(s);
+	s = s+1;
+                          end
+      end
+
+  plot(t,y);
+  title('base band signal');
+  xlabel('time(sec)');
+             ylabel('Amplitude (V)');
+
+  Carr_Freq= 5;
+  
+  Carrier = cos(Carr_Freq*2*pi*t);
+  output = Carrier.*y;
+  plot(t,output);
+  title('transmitter output');
+  xlabel('time(sec)');
+         ylabel('Amplitude (V)');
+
+f=linspace(0,1,(length(a)*500)+1);
+  spect = abs(fftshift(fft(output)));
+  plot(f,spect);
+  
+  title('transmitter spectrum');
+  xlabel('freqency(hz)');
+  ylabel('Y(f)');
+
+  phase_error = 0
+  Mult = output.*cos(2*pi*Carr_Freq*t +phase_error );
+  subplot(2,1,1)
+  plot(t,Mult);
+  title('receiver after multiplying by carrier');
+  xlabel('time(sec)');
+  ylabel('Amp(v)');
+
+  reveiver_filtered = abs((ifft(fft(Mult).*fft(sinc(10*t)))));
+  subplot(2,1,2)
+  plot(t,reveiver_filtered)
+  title('receiver after filter');
+  xlabel('time(sec)');
+  ylabel('Amp(v)');
+
+  f=linspace(0,1,(length(a)*500)+1);
+  spect = abs(fftshift(fft(reveiver_filtered)));
+  plot((f-0.5)*10,spect);
+  title('receiver spectrum');
+  xlabel('freq(hz)');
+  ylabel('Y(f)');
