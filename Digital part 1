@@ -1,0 +1,82 @@
+N = 32 ;
+a=round(rand(1,N));
+j=0;
+for i=1:N
+    if a(i)==0;
+        b(i)=0;
+    else
+        j=j+1;
+        if mod(j,2)==0
+            b(i)=-1;
+        else
+            b(i)=+1;
+        end
+    end
+end
+subplot(4,1,1)
+stairs(a,'LineWidth',2.5)
+title('UNIPOLAR NON-RETUNR TO ZERO')
+subplot(4,1,2)
+stairs(b,'LineWidth',2.5)
+title('Bipolar AMI');
+
+bit_rate = 64;
+bit_width = 100;
+T=2;
+Fs = bit_rate*bit_width;
+t = linspace(0,T,length(a));
+delta_t = (t(1,2)-t(1,1));
+bit_time = 1/bit_rate;
+N = (bit_time/delta_t);
+t = linspace(0,T,length(data_polar));
+nfft = 2^nextpow2(L)*figure_accuracy;
+figure_accuracy = 20;
+f = linspace(-Fs/2,Fs/2,nfft);
+
+one_bit = a(1,1:bit_width);
+ft_one_bit = fft(one_bit,nfft);
+ft_one_bit = fftshift(ft_one_bit);
+ft_one_bit = abs(ft_one_bit);
+figure;
+power_UNI = ft_one_bit.^2/Fs/N;
+plot(f(f>=0 & f<=2*2*bit_rate),power_UNI(f>=0 & f<=2*2*bit_rate)*1000);
+axis([0,300])
+title('Power Spectrum of Unipolar NRZ');
+xlabel('Frequency (Hz)');
+ylabel('V(f)^2');
+legend("UNIPOlar");
+
+one_bit_AMI = b(1,1:bit_width);
+ft_one_bit = fft(one_bit_AMI,nfft);
+ft_one_bit = fftshift(ft_one_bit);
+ft_one_bit = abs(ft_one_bit);
+figure;
+power_AMI = ft_one_bit.^2/Fs/N;
+plot(f(f>=0 & f<=2*2*bit_rate),power_AMI(f>=0 & f<=2*2*bit_rate)*100000);
+axis([0,300])
+
+title('Power Spectrum of AMI');
+xlabel('Frequency (Hz)');
+ylabel('V(f)^2');
+legend("AMi");
+
+freq = 10
+t3 = linspace(-freq/2,freq/2,N/4)
+y = downsample(abs(fftshift(fft(a))),4)
+plot(t3*50,y);
+axis([-200,200,0,300])
+title('Fast Fourier Transform of UNIpolar NRZ');
+xlabel('Frequency (Hz)');
+ylabel('Amplitude (V)');
+legend("UNIpolar NRZ"); 
+
+freq = 10
+t3 = linspace(-freq/2,freq/2,N/4)
+y = downsample(abs(fftshift(fft(b))),4)
+
+plot(t3*50,y);
+#axis([-200,200,0,300])
+title('Fast Fourier Transform of AMI NRZ');
+xlabel('Frequency (Hz)');
+ylabel('Amplitude (V)');
+legend("AMI NRZ"); 
