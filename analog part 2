@@ -1,0 +1,235 @@
+// Q1 
+%cosine 
+%f= 50;
+fs=500;
+x= 0:1/fs:3;
+y = cos (2*pi *9*x);
+
+figure(1);
+plot(x,y,'g');
+grid on;
+ylim([-3 3]);
+title('Message Signal m(t) in Time Domain');
+ylabel('Ampltude');
+xlabel('Time (s)');
+
+// Q2  hand analyis 
+
+
+// Q3
+
+%spectrum of cosine 
+
+N = length(y)*100;
+f = (-N/2:N/2-1)*fs/N ;
+y1 = abs(fftshift(fft(y,N)))/length(y);
+figure(2);
+subplot(2,1,1);
+plot( f , y1 )
+title( ' Message Signal in Frequaency Domain ' );
+ylabel( ' |X(f)|' );
+xlabel( ' frequency ' ) ;
+xlim([-20 20]); 
+
+%by analytical solution
+
+r=0.5*abs(sinc(f+9));
+d=0.5*abs(sinc(f-9));
+figure(2);
+subplot(2,1,2);
+plot(f,r,'r',f,d);
+title( ' Message Signal in Frequaency Domain from Analytical solution ' );
+ylabel( ' |X(f)|' );
+xlabel( ' frequency ' ) ;
+xlim([-20 20]);
+
+//Q4 hand analyis 
+
+// Q5.A 
+%DSB_SC
+c = cos(2 * pi * 50 * x );
+Dy = y .* c;
+dN = length(Dy)*100;
+df = (-dN/2:dN/2-1)*fs/dN ;
+Dy1 = abs(fftshift(fft(Dy,dN)))/length(Dy);
+
+figure (3);
+subplot(2,1,1);
+plot( x , Dy, 'r');
+ylim([-3 3]);
+grid on;
+title('Message Signal DSB-SC in Time Domain');
+ylabel('Amp.');
+xlabel('Time (sec)');
+
+figure (3);
+subplot(2,1,2);
+plot( df , Dy1  );
+title( ' Spectrum of Modualeted Signal S(f) - " DSB-SC " ' );
+xlim([-80 80]);
+
+//Q5.B
+%demodulator of DSB_SC
+DDy = Dy .* c;
+%LPF
+F_output =lowpass(DDy,20,fs);
+figure(4);
+subplot(2,1,1);
+plot(x,F_output); 
+xlabel('Time (s)');
+ylabel('Demodulated Signal');
+title('Time Domain Of Demodulated Signal');
+figure(4);
+subplot(2,1,2);
+plot(x,F_output,'r',x,y); 
+xlabel('Time (s)');
+ylabel('Demodulated Signal');
+title('Time Domain Of Demodulated Signal compared to the Original signal');
+legend('modulated signal'  , 'Original signal');
+
+// Q6.A
+%SSB
+c1 = -sin(50*2*pi*x);     %from the diagram of hilbert it have a negative sign 
+hilbert_output = imag(hilbert(y));
+first_output = hilbert_output .* c1;
+second_output = y .* c;  %where c is defined to be = cos(50*2*pi*t) 
+mod_signal = first_output + second_output;
+
+figure(5);
+plot(x,mod_signal);                                                                                                           
+xlabel("time");
+ylabel("SSB(t)");
+title("modulated signal in time domain ");  
+%spectrum of SSB 
+n1 = length(mod_signal)*100;
+f2 = (-n1/2:n1/2-1)*fs/n1 ;
+spec_mod_signal = abs(fftshift(fft(mod_signal,n1)))/length(mod_signal);
+figure(6);
+plot(f2,spec_mod_signal); 
+title("modulated signal in frequency domain ")
+xlabel("frequency")
+xlim([-100 100]) 
+ylabel("S(f)")
+
+// Q6.B
+%demodulator of SSB 
+c = cos(2 * pi * 50 * x );
+dem_mod_signal = mod_signal .* c;
+lpf_ouput = lowpass(dem_mod_signal,20,fs);
+
+figure(7);
+subplot(2,1,1);
+plot(x,lpf_ouput); 
+xlabel('Time (s)');
+ylabel('Demodulated Signal of SSB');
+title('Time Domain Of Demodulated Signal');
+figure(7);
+subplot(2,1,2);
+plot(x,lpf_ouput,'r',x,y); 
+xlabel('Time (s)');
+ylabel('Demodulated Signal');
+title('Time Domain Of Demodulated Signal compared to the Original signal');
+legend('demodulated signal'  , 'Original signal');
+
+// Q7.A
+%AM modulation 
+
+fs=450;
+x= 0:1/fs:1;
+Ka = 0.4;
+y = cos (2*pi *9*x);
+N0 = length(y)*100;
+f0 = (-N0/2:N0/2-1)*fs/N0 ;
+%spectrum of y
+y1 = abs(fftshift(fft(y,N0)))/length(y);
+%spectrum of modulated signal 
+c =cos(2 * pi * 50 * x );
+s = (1 + Ka.*y) . *c;
+%spectrum 
+N1 = length(s)*100;
+f1 = (-N1/2:N1/2-1)*fs/N1 ;
+s1 = abs(fftshift(fft(s,N1)))/length(s); 
+figure(8);
+plot(f1,s1);
+title( ' Message Signal in Frequaency Domain ' );
+ylabel( ' |X(f)|' );
+xlabel( ' frequency ' ) ;
+
+//Q7.B 
+%Envelope 
+
+hs = abs(hilbert(s)); 
+hs_o = hs-1; % to remove the DC  component 
+N11 = length(hs)*100;
+f11 = (-N11/2:N11/2-1)*fs/N11 ;
+hs1 = abs(fftshift(fft(hs_o,N11)))/length(hs_o);
+
+figure(9);
+plot(x, s, x,-hs,'r', x,hs,'r')
+title( ' envelope message signal in time domain' );
+ylabel( ' Envelope' );
+xlabel( ' Time' ) ;
+legend('AM signal'  , 'envelope');
+conditions of relaxation time:
+Charging: 
+τ_c << 1/fc 
+we can assume rapid charging(neglect resistance of source and diode)
+so τ_c  = 0;
+
+//Q7.C
+figure(10);
+plot(x, y, x, hs_o)
+title( ' envelope message signal & the origional message in Time domain ' );
+ylabel( ' modulated message % original message' );
+xlabel( ' Time' ) ;
+legend('Original signal'  , 'modulated signal');
+
+figure(11);
+plot(f0, y1,'r', f11, hs1)
+title( ' envelope message signal & the origional message in frequency domain ' );
+ylabel( ' modulated message & original message' );
+xlabel( ' frequency' ) ;
+legend('Original signal'  , 'modulated signal');
+
+//Q7.D
+% k =1.5 
+fs=450;
+x= 0:1/fs:1;
+Ka1 = 1.5;
+y = cos (2*pi *9*x);
+N0 = length(y)*100;
+f0 = (-N0/2:N0/2-1)*fs/N0 ; 
+%spectrum of y
+y1 = abs(fftshift(fft(y,N0)))/length(y); 
+%modulated sugnal
+c = cos(2 * pi * 50 * x );
+s = (1 + Ka1.*y) . *c;
+%spectrum of modulated signal 
+N1 = length(s)*100;
+f1 = (-N1/2:N1/2-1)*fs/N1 ;
+s1 = abs(fftshift(fft(s,N1)))/length(s); 
+figure(12);
+plot(f1,s1);
+title( ' Message Signal in Frequaency Domain when ka = 1.5 ' );
+ylabel( ' |X(f)|' );
+xlabel( ' frequency ' ) ;
+%Envelope 
+hs = abs(hilbert(s)); 
+hs_o = hs-1; % to be at zero 
+N11 = length(hs)*100;
+f11 = (-N11/2:N11/2-1)*fs/N11 ;
+hs1 = abs(fftshift(fft(hs_o,N11)))/length(hs_o);
+
+figure(13);
+plot(x, s, x,-hs,'r', x,hs,'r')
+title( ' envelope message signal when ka = 1.5 ' );
+ylabel( ' Envelope' );
+xlabel( ' Time' ) ;
+legend('AM signal'  , 'envelope');
+
+
+
+
+
+
+
